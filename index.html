@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Diario - Proyecto Santiago y Ramiro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 flex flex-col items-center justify-center">
+
+    <!-- SECCIÓN 1: PANTALLA DE LOGIN / REGISTRO -->
+    <div id="loginSection" class="w-full max-w-md bg-white p-6 rounded-xl shadow-lg hidden">
+        <h2 class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Proyecto Santiago y Ramiro</h2>
+        <h1 class="text-xl font-bold text-gray-800 mb-2">Identificación de Usuario</h1>
+        <p id="loginSubt" class="text-xs text-gray-500 mb-4">Ingresa tu correo y contraseña.</p>
+        
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="email" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Correo Electrónico</label>
+                <input type="email" id="email" required placeholder="correo@ejemplo.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label for="password" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Tu Contraseña</label>
+                <div class="relative">
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button type="button" onclick="togglePassword('password', 'iconPass')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <span id="iconPass">👁️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor dinámico del código de seguridad (se oculta si el usuario ya existe) -->
+            <div id="contenedorCodigo" class="hidden">
+                <label for="codigoSeguridad" class="block text-xs font-semibold text-amber-600 uppercase mb-1">Código de Seguridad (Solo 1ª vez)</label>
+                <div class="relative">
+                    <input type="password" id="codigoSeguridad" placeholder="Código provisto por el admin" class="w-full px-3 py-2 pr-10 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none bg-amber-50">
+                    <button type="button" onclick="togglePassword('codigoSeguridad', 'iconCodigo')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <span id="iconCodigo">👁️</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmitLogin" class="w-full bg-indigo-600 text-white font-medium py-2 rounded-lg hover:bg-indigo-700 transition">
+                Entrar al Sistema
+            </button>
+        </form>
+        <div id="loginMensaje" class="text-xs text-center hidden py-2 mt-3 rounded-lg font-medium"></div>
+    </div>
+
+    <!-- SECCIÓN 2: APLICACIÓN PRINCIPAL -->
+    <div id="appSection" class="w-full max-w-md hidden flex flex-col items-center">
+        <div class="w-full bg-white p-3 rounded-xl shadow-sm mb-4 flex justify-between items-center text-xs text-gray-600">
+            <span>Usuario: <strong id="lblUsuario" class="text-indigo-600"></strong></span>
+            <button onclick="cerrarSesionMovil()" class="text-red-500 hover:underline">Cambiar de usuario</button>
+        </div>
+
+        <div class="w-full bg-white p-6 rounded-xl shadow-lg mb-6 relative">
+            <h2 class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Proyecto Santiago y Ramiro</h2>
+            <h1 class="text-xl font-bold text-gray-800 mb-2">Registro de Actividades</h1>
+            
+            <div id="fechaActual" class="text-sm font-medium text-gray-600 bg-gray-50 p-2 rounded-lg text-center mb-4 border border-gray-200">
+                Cargando fecha...
+            </div>
+
+            <form id="registroForm" class="space-y-4 relative">
+                <div class="relative">
+                    <label for="actividad" class="block text-xs font-semibold text-gray-700 uppercase mb-1">¿Qué actividad hiciste?</label>
+                    <input type="text" id="actividad" autocomplete="off" required placeholder="Escribe para buscar..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    
+                    <div id="sugerencias" class="absolute left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden z-50"></div>
+                </div>
+
+                <button type="submit" id="btnSubmitActividad" class="w-full bg-indigo-600 text-white font-medium py-2 rounded-lg hover:bg-indigo-700 transition">
+                    Añadir al Listado
+                </button>
+            </form>
+
+            <div id="mensaje" class="text-xs text-center hidden py-2 mt-3 rounded-lg font-medium"></div>
+        </div>
+
+        <div class="w-full bg-white p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-gray-800 text-sm">Mis actividades de hoy</h3>
+                <span id="contador" class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 rounded-full">0 registradas</span>
+            </div>
+            
+            <div id="listaActividades" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <p class="text-xs text-gray-400 text-center py-4">Aún no hay actividades registradas hoy.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CODIGO_MAESTRO = '123456';
+        const SUPABASE_URL = 'https://fthyqejgqmgtmsqfugzv.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Cr7Ymw_5D9kdcTq2o2nJvw_32FNOv1v'; 
+
+        const headers = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        };
+
+        const loginSection = document.getElementById('loginSection');
+        const appSection = document.getElementById('appSection');
+        const loginForm = document.getElementById('loginForm');
+        const loginMensaje = document.getElementById('loginMensaje');
+        const loginSubt = document.getElementById('loginSubt');
+        const lblUsuario = document.getElementById('lblUsuario');
+        const inputEmail = document.getElementById('email');
+        const inputPassword = document.getElementById('password');
+        const inputCodigo = document.getElementById('codigoSeguridad');
+        const contenedorCodigo = document.getElementById('contenedorCodigo');
+
+        function togglePassword(idInput, idIcono) {
+            const input = document.getElementById(idInput);
+            const icono = document.getElementById(idIcono);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icono.textContent = '🔒';
+            } else {
+                input.type = 'password';
+                icono.textContent = '👁️';
+            }
+        }
+
+        const usuarioGuardado = localStorage.getItem('usuario_actual');
+        if (usuarioGuardado) {
+            mostrarApp(usuarioGuardado);
+        } else {
+            loginSection.classList.remove('hidden');
+            document.body.classList.remove('justify-center');
+        }
+
+        // Comprobar en tiempo real si el correo ya existe mientras el usuario escribe
+        let timerVerificacion;
+        inputEmail.addEventListener('input', () => {
+            clearTimeout(timerVerificacion);
+            const email = inputEmail.value.trim();
+            if (!email || !email.includes('@')) {
+                contenedorCodigo.classList.add('hidden');
+                return;
+            }
+
+            timerVerificacion = setTimeout(async () => {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(email)}`, {
+                        method: 'GET',
+                        headers: headers
+                    });
+                    if (response.ok) {
+                        const usuarios = await response.json();
+                        if (usuarios.length > 0) {
+                            // El usuario ya existe: ocultamos el campo de código de seguridad
+                            contenedorCodigo.classList.add('hidden');
+                            inputCodigo.value = '';
+                            loginSubt.textContent = 'Ingresa tu correo y contraseña.';
+                        } else {
+                            // Usuario nuevo: mostramos el código de seguridad
+                            contenedorCodigo.classList.remove('hidden');
+                            loginSubt.textContent = 'Correo nuevo detectado. Introduce tu contraseña y el código de seguridad.';
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error verificando correo:", err);
+                }
+            }, 400);
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = inputEmail.value.trim();
+            const password = inputPassword.value;
+            const codigoIngresado = inputCodigo.value.trim();
+
+            loginMensaje.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(email)}`, {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al conectar con la base de datos (Status: ' + response.status + ')');
+                }
+
+                const usuarios = await response.json();
+                const usuarioExistente = usuarios.length > 0 ? usuarios[0] : null;
+
+                if (!usuarioExistente) {
+                    if (codigoIngresado === CODIGO_MAESTRO) {
+                        const nombreProvisional = email.split('@')[0];
+
+                        const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/usuarios`, {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({ email: email, nombre: nombreProvisional, password: password })
+                        });
+
+                        if (!insertResponse.ok) {
+                            throw new Error('No se pudo registrar el usuario en la tabla.');
+                        }
+
+                        localStorage.setItem('usuario_actual', nombreProvisional);
+                        mostrarApp(nombreProvisional);
+                    } else {
+                        loginMensaje.textContent = '❌ Correo nuevo. Debes introducir el código de seguridad correcto.';
+                        loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                        loginMensaje.classList.remove('hidden');
+                    }
+                } else {
+                    if (usuarioExistente.password === password) {
+                        localStorage.setItem('usuario_actual', usuarioExistente.nombre);
+                        mostrarApp(usuarioExistente.nombre);
+                    } else {
+                        loginMensaje.textContent = '❌ Contraseña incorrecta.';
+                        loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                        loginMensaje.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                loginMensaje.textContent = '❌ Error de red: ' + error.message;
+                loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                loginMensaje.classList.remove('hidden');
+            }
+        });
+
+        function mostrarApp(nombreUsuario) {
+            loginSection.classList.add('hidden');
+            appSection.classList.remove('hidden');
+            document.body.classList.remove('justify-center');
+            lblUsuario.textContent = nombreUsuario;
+            inicializarApp(nombreUsuario);
+        }
+
+        function cerrarSesionMovil() {
+            localStorage.removeItem('usuario_actual');
+            location.reload();
+        }
+
+        function inicializarApp(nombreUsuario) {
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaHoyStr = new Date().toLocaleDateString('es-ES', opcionesFecha);
+            document.getElementById('fechaActual').textContent = fechaHoyStr.charAt(0).toUpperCase() + fechaHoyStr.slice(1);
+            const hoyISO = new Date().toISOString().split('T')[0];
+
+            const formulario = document.getElementById('registroForm');
+            const inputActividad = document.getElementById('actividad');
+            const btnSubmitActividad = document.getElementById('btnSubmitActividad');
+            const contenedorSugerencias = document.getElementById('sugerencias');
+            const listaActividades = document.getElementById('listaActividades');
+            const contador = document.getElementById('contador');
+            const mensaje = document.getElementById('mensaje');
+
+            inputActividad.addEventListener('input', async (e) => {
+                const textoBusqueda = e.target.value.trim();
+                if (textoBusqueda.length < 2) {
+                    contenedorSugerencias.classList.add('hidden');
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/actividades_catalogo?nombre_actividad=ilike.${encodeURIComponent('%' + textoBusqueda + '%')}&limit=5`, {
+                        method: 'GET',
+                        headers: headers
+                    });
+                    const data = await res.json();
+
+                    if (!data || data.length === 0) {
+                        contenedorSugerencias.classList.add('hidden');
+                        return;
+                    }
+
+                    contenedorSugerencias.innerHTML = '';
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer border-b border-gray-100';
+                        div.textContent = item.nombre_actividad;
+                        div.addEventListener('click', () => {
+                            inputActividad.value = item.nombre_actividad;
+                            contenedorSugerencias.classList.add('hidden');
+                        });
+                        contenedorSugerencias.appendChild(div);
+                    });
+                    contenedorSugerencias.classList.remove('hidden');
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            async function cargarActividadesHoy() {
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/registro_diario?fecha=eq.${hoyISO}&usuario=eq.${encodeURIComponent(nombreUsuario)}&order=created_at.desc`, {
+                        method: 'GET',
+                        headers: headers
+                    });
+                    const data = await res.json();
+
+                    if (!data || data.length === 0) {
+                        listaActividades.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Aún no hay actividades registradas hoy.</p>';
+                        contador.textContent = '0 registradas';
+                        return;
+                    }
+
+                    contador.textContent = `${data.length} registradas`;
+                    listaActividades.innerHTML = '';
+
+                    data.forEach((item) => {
+                        const div = document.createElement('div');
+                        div.className = 'flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-sm';
+                        div.innerHTML = `
+                            <span class="text-gray-700 font-medium">${item.nombre_actividad}</span>
+                            <span class="text-[10px] text-gray-400">${item.hora || ''}</span>
+                        `;
+                        listaActividades.appendChild(div);
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            formulario.onsubmit = async (e) => {
+                e.preventDefault();
+                const nombreActividad = inputActividad.value.trim();
+                if (!nombreActividad) return;
+
+                btnSubmitActividad.disabled = true;
+                btnSubmitActividad.textContent = 'Guardando...';
+
+                const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                try {
+                    await fetch(`${SUPABASE_URL}/rest/v1/registro_diario`, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({ 
+                            nombre_actividad: nombreActividad, 
+                            fecha: hoyISO, 
+                            hora: horaActual,
+                            usuario: nombreUsuario 
+                        })
+                    });
+
+                    await fetch(`${SUPABASE_URL}/rest/v1/actividades_catalogo?on_conflict=nombre_actividad`, {
+                        method: 'POST',
+                        headers: {
+                            ...headers,
+                            'Prefer': 'resolution=merge-duplicates'
+                        },
+                        body: JSON.stringify({ nombre_actividad: nombreActividad })
+                    });
+
+                    btnSubmitActividad.disabled = false;
+                    btnSubmitActividad.textContent = 'Añadir al Listado';
+
+                    mensaje.textContent = '¡Actividad añadida!';
+                    mensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-green-100 text-green-700';
+                    mensaje.classList.remove('hidden');
+
+                    inputActividad.value = '';
+                    contenedorSugerencias.classList.add('hidden');
+                    inputActividad.focus();
+
+                    setTimeout(() => mensaje.classList.add('hidden'), 2000);
+                    cargarActividadesHoy();
+                } catch (err) {
+                    btnSubmitActividad.disabled = false;
+                    btnSubmitActividad.textContent = 'Añadir al Listado';
+                    mensaje.textContent = '❌ Error al guardar la actividad.';
+                    mensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                    mensaje.classList.remove('hidden');
+                }
+            };
+
+            cargarActividadesHoy();
+        }
+    </script>
+</body>
+</html>
