@@ -9,35 +9,30 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-4 flex flex-col items-center justify-center">
 
-    <!-- SECCIÓN 1: PANTALLA DE LOGIN / REGISTRO -->
-    <div id="loginSection" class="w-full max-w-md bg-white p-6 rounded-xl shadow-lg hidden">
+    <!-- SECCIÓN 1: PANTALLA DE ACCESO (LOGIN / REGISTRO) -->
+    <div id="loginSection" class="w-full max-w-md bg-white p-6 rounded-xl shadow-lg">
         <h2 class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Proyecto Santiago y Ramiro</h2>
-        <h1 class="text-xl font-bold text-gray-800 mb-2">Identificación de Usuario</h1>
-        <p id="loginSubt" class="text-xs text-gray-500 mb-4">Ingresa tu correo y contraseña.</p>
+        <h1 class="text-xl font-bold text-gray-800 mb-4" id="tituloAuth">Iniciar Sesión</h1>
+
+        <!-- Pestañas de Navegación (Login / Registro) -->
+        <div class="flex border-b border-gray-200 mb-4">
+            <button type="button" id="tabLogin" onclick="cambiarTab('login')" class="w-1/2 pb-2 text-sm font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none transition">Ya tengo cuenta</button>
+            <button type="button" id="tabRegistro" onclick="cambiarTab('registro')" class="w-1/2 pb-2 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 focus:outline-none transition">Registrarse</button>
+        </div>
         
-        <form id="loginForm" class="space-y-4">
+        <!-- FORMULARIO DE LOGIN -->
+        <form id="formLogin" class="space-y-4">
             <div>
-                <label for="email" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Correo Electrónico</label>
-                <input type="email" id="email" required placeholder="correo@ejemplo.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label for="loginEmail" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Correo Electrónico</label>
+                <input type="email" id="loginEmail" required placeholder="correo@ejemplo.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
             </div>
 
             <div>
-                <label for="password" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Tu Contraseña</label>
+                <label for="loginPassword" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Contraseña</label>
                 <div class="relative">
-                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <button type="button" onclick="togglePassword('password', 'iconPass')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
-                        <span id="iconPass">👁️</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Contenedor dinámico del código de seguridad (se oculta si el usuario ya existe) -->
-            <div id="contenedorCodigo" class="hidden">
-                <label for="codigoSeguridad" class="block text-xs font-semibold text-amber-600 uppercase mb-1">Código de Seguridad (Solo 1ª vez)</label>
-                <div class="relative">
-                    <input type="password" id="codigoSeguridad" placeholder="Código provisto por el admin" class="w-full px-3 py-2 pr-10 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none bg-amber-50">
-                    <button type="button" onclick="togglePassword('codigoSeguridad', 'iconCodigo')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
-                        <span id="iconCodigo">👁️</span>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button type="button" onclick="togglePassword('loginPassword', 'iconLoginPass')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <span id="iconLoginPass">👁️</span>
                     </button>
                 </div>
             </div>
@@ -46,6 +41,44 @@
                 Entrar al Sistema
             </button>
         </form>
+
+        <!-- FORMULARIO DE REGISTRO -->
+        <form id="formRegistro" class="space-y-4 hidden">
+            <div>
+                <label for="regNombre" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Nombre de Usuario</label>
+                <input type="text" id="regNombre" required placeholder="Tu nombre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label for="regEmail" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Correo Electrónico</label>
+                <input type="email" id="regEmail" required placeholder="correo@ejemplo.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label for="regPassword" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Contraseña</label>
+                <div class="relative">
+                    <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button type="button" onclick="togglePassword('regPassword', 'iconRegPass')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <span id="iconRegPass">👁️</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label for="regCodigo" class="block text-xs font-semibold text-amber-600 uppercase mb-1">Código de Seguridad (Administrador)</label>
+                <div class="relative">
+                    <input type="password" id="regCodigo" required placeholder="Código provisto por el admin" class="w-full px-3 py-2 pr-10 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none bg-amber-50">
+                    <button type="button" onclick="togglePassword('regCodigo', 'iconRegCodigo')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <span id="iconRegCodigo">👁️</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmitRegistro" class="w-full bg-amber-600 text-white font-medium py-2 rounded-lg hover:bg-amber-700 transition">
+                Completar Registro
+            </button>
+        </form>
+
         <div id="loginMensaje" class="text-xs text-center hidden py-2 mt-3 rounded-lg font-medium"></div>
     </div>
 
@@ -57,7 +90,7 @@
             <div class="space-x-2">
                 <button onclick="abrirModalConsulta()" class="text-indigo-600 font-semibold hover:underline">📊 Consultar</button>
                 <span class="text-gray-300">|</span>
-                <button onclick="cerrarSesionMovil()" class="text-red-500 hover:underline">Cambiar usuario</button>
+                <button onclick="cerrarSesionMovil()" class="text-red-500 hover:underline">Cerrar sesión</button>
             </div>
         </div>
 
@@ -142,7 +175,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONSULTA DE ACTIVIDADES (SEMANAL / MENSUAL) -->
+    <!-- MODAL DE CONSULTA DE ACTIVIDADES -->
     <div id="modalConsulta" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
         <div class="w-full max-w-lg bg-white p-6 rounded-xl shadow-xl relative max-h-[90vh] flex flex-col">
             <button type="button" onclick="cerrarModalConsulta()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg font-bold">✕</button>
@@ -150,7 +183,6 @@
             <h2 class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Panel de Control</h2>
             <h1 class="text-xl font-bold text-gray-800 mb-4">Consulta de Actividades</h1>
 
-            <!-- Filtros de Usuario y Tipo de Vista -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
                 <div>
                     <label for="selectUsuarioConsulta" class="block text-[10px] font-semibold text-gray-700 uppercase mb-1">Usuario</label>
@@ -168,7 +200,6 @@
                 </div>
             </div>
 
-            <!-- Controles de Navegación -->
             <div class="flex justify-between items-center mb-4 bg-indigo-50 px-3 py-2 rounded-lg border border-indigo-100">
                 <button id="btnAnteriorConsulta" class="bg-white text-indigo-600 font-semibold px-2.5 py-1 rounded-md border border-indigo-200 hover:bg-indigo-600 hover:text-white transition text-xs">
                     ← Anterior
@@ -179,7 +210,6 @@
                 </button>
             </div>
 
-            <!-- Contenedor de Resultados Dinámicos -->
             <div id="contenedorResultadosConsulta" class="space-y-3 flex-1 overflow-y-auto pr-1">
                 <p class="text-xs text-gray-400 text-center py-8">Selecciona un usuario para ver sus registros.</p>
             </div>
@@ -200,14 +230,32 @@
 
         const loginSection = document.getElementById('loginSection');
         const appSection = document.getElementById('appSection');
-        const loginForm = document.getElementById('loginForm');
         const loginMensaje = document.getElementById('loginMensaje');
-        const loginSubt = document.getElementById('loginSubt');
+        const tituloAuth = document.getElementById('tituloAuth');
         const lblUsuario = document.getElementById('lblUsuario');
-        const inputEmail = document.getElementById('email');
-        const inputPassword = document.getElementById('password');
-        const inputCodigo = document.getElementById('codigoSeguridad');
-        const contenedorCodigo = document.getElementById('contenedorCodigo');
+
+        // Pestañas y formularios
+        const tabLogin = document.getElementById('tabLogin');
+        const tabRegistro = document.getElementById('tabRegistro');
+        const formLogin = document.getElementById('formLogin');
+        const formRegistro = document.getElementById('formRegistro');
+
+        function cambiarTab(tipo) {
+            loginMensaje.classList.add('hidden');
+            if (tipo === 'login') {
+                tabLogin.className = "w-1/2 pb-2 text-sm font-bold text-indigo-600 border-b-2 border-indigo-600 focus:outline-none transition";
+                tabRegistro.className = "w-1/2 pb-2 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 focus:outline-none transition";
+                formLogin.classList.remove('hidden');
+                formRegistro.classList.add('hidden');
+                tituloAuth.textContent = "Iniciar Sesión";
+            } else {
+                tabRegistro.className = "w-1/2 pb-2 text-sm font-bold text-amber-600 border-b-2 border-amber-600 focus:outline-none transition";
+                tabLogin.className = "w-1/2 pb-2 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 focus:outline-none transition";
+                formRegistro.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+                tituloAuth.textContent = "Registro de Nuevo Usuario";
+            }
+        }
 
         function togglePassword(idInput, idIcono) {
             const input = document.getElementById(idInput);
@@ -229,43 +277,11 @@
             document.body.classList.remove('justify-center');
         }
 
-        let timerVerificacion;
-        inputEmail.addEventListener('input', () => {
-            clearTimeout(timerVerificacion);
-            const email = inputEmail.value.trim();
-            if (!email || !email.includes('@')) {
-                contenedorCodigo.classList.add('hidden');
-                return;
-            }
-
-            timerVerificacion = setTimeout(async () => {
-                try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(email)}`, {
-                        method: 'GET',
-                        headers: headers
-                    });
-                    if (response.ok) {
-                        const usuarios = await response.json();
-                        if (usuarios.length > 0) {
-                            contenedorCodigo.classList.add('hidden');
-                            inputCodigo.value = '';
-                            loginSubt.textContent = 'Ingresa tu correo y contraseña.';
-                        } else {
-                            contenedorCodigo.classList.remove('hidden');
-                            loginSubt.textContent = 'Correo nuevo detectado. Introduce tu contraseña y el código de seguridad.';
-                        }
-                    }
-                } catch (err) {
-                    console.error("Error verificando correo:", err);
-                }
-            }, 400);
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
+        // LÓGICA DE INICIO DE SESIÓN
+        formLogin.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = inputEmail.value.trim();
-            const password = inputPassword.value;
-            const codigoIngresado = inputCodigo.value.trim();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
             loginMensaje.classList.add('hidden');
 
@@ -275,44 +291,75 @@
                     headers: headers
                 });
 
-                if (!response.ok) {
-                    throw new Error('Error al conectar con la base de datos (Status: ' + response.status + ')');
-                }
+                if (!response.ok) throw new Error('Error al conectar con la base de datos');
 
                 const usuarios = await response.json();
-                const usuarioExistente = usuarios.length > 0 ? usuarios[0] : null;
-
-                if (!usuarioExistente) {
-                    if (codigoIngresado === CODIGO_MAESTRO) {
-                        const nombreProvisional = email.split('@')[0];
-
-                        const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/usuarios`, {
-                            method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify({ email: email, nombre: nombreProvisional, password: password })
-                        });
-
-                        if (!insertResponse.ok) {
-                            throw new Error('No se pudo registrar el usuario en la tabla.');
-                        }
-
-                        localStorage.setItem('usuario_actual', nombreProvisional);
-                        mostrarApp(nombreProvisional);
-                    } else {
-                        loginMensaje.textContent = '❌ Correo nuevo. Debes introducir el código de seguridad correcto.';
-                        loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
-                        loginMensaje.classList.remove('hidden');
-                    }
-                } else {
-                    if (usuarioExistente.password === password) {
-                        localStorage.setItem('usuario_actual', usuarioExistente.nombre);
-                        mostrarApp(usuarioExistente.nombre);
-                    } else {
-                        loginMensaje.textContent = '❌ Contraseña incorrecta.';
-                        loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
-                        loginMensaje.classList.remove('hidden');
-                    }
+                if (usuarios.length === 0) {
+                    loginMensaje.textContent = '❌ El correo no está registrado. Cambia a la pestaña "Registrarse".';
+                    loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                    loginMensaje.classList.remove('hidden');
+                    return;
                 }
+
+                const usuarioExistente = usuarios[0];
+                if (usuarioExistente.password === password) {
+                    localStorage.setItem('usuario_actual', usuarioExistente.nombre);
+                    mostrarApp(usuarioExistente.nombre);
+                } else {
+                    loginMensaje.textContent = '❌ Contraseña incorrecta.';
+                    loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                    loginMensaje.classList.remove('hidden');
+                }
+            } catch (error) {
+                loginMensaje.textContent = '❌ Error de red: ' + error.message;
+                loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                loginMensaje.classList.remove('hidden');
+            }
+        });
+
+        // LÓGICA DE REGISTRO DE NUEVO USUARIO
+        formRegistro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('regNombre').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const codigoIngresado = document.getElementById('regCodigo').value.trim();
+
+            loginMensaje.classList.add('hidden');
+
+            if (codigoIngresado !== CODIGO_MAESTRO) {
+                loginMensaje.textContent = '❌ Código de seguridad incorrecto.';
+                loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                loginMensaje.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Verificar si el correo ya existe
+                const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(email)}`, {
+                    method: 'GET',
+                    headers: headers
+                });
+                const existingUsers = await checkRes.json();
+                if (existingUsers.length > 0) {
+                    loginMensaje.textContent = '❌ Este correo ya está registrado. Inicia sesión.';
+                    loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
+                    loginMensaje.classList.remove('hidden');
+                    return;
+                }
+
+                // Insertar nuevo usuario
+                const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/usuarios`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ nombre: nombre, email: email, password: password })
+                });
+
+                if (!insertResponse.ok) throw new Error('No se pudo registrar el usuario.');
+
+                localStorage.setItem('usuario_actual', nombre);
+                mostrarApp(nombre);
+
             } catch (error) {
                 loginMensaje.textContent = '❌ Error de red: ' + error.message;
                 loginMensaje.className = 'text-xs text-center py-2 mt-3 rounded-lg font-medium bg-red-100 text-red-700';
@@ -623,7 +670,7 @@
             cargarActividadesHoy();
         }
 
-        // --- LÓGICA DEL MODAL DE CONSULTA (SEMANAL / MENSUAL) ---
+        // --- LÓGICA DEL MODAL DE CONSULTA ---
         const modalConsulta = document.getElementById('modalConsulta');
         const selectUsuarioConsulta = document.getElementById('selectUsuarioConsulta');
         const selectVistaConsulta = document.getElementById('selectVistaConsulta');
@@ -791,7 +838,7 @@
                     </div>
                     <div class="space-y-1">${htmlActs}</div>
                 `;
-                contenedorResultadosConsulta.appendChild(divFecha);
+                contenedorResultadosConsulta.contenedorResultadosConsulta ? '' : contenedorResultadosConsulta.appendChild(divFecha);
             });
         }
 
