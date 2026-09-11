@@ -51,9 +51,14 @@
 
     <!-- SECCIÓN 2: APLICACIÓN PRINCIPAL -->
     <div id="appSection" class="w-full max-w-md hidden flex flex-col items-center">
+        <!-- Barra superior con usuario, botón de consulta y cerrar sesión -->
         <div class="w-full bg-white p-3 rounded-xl shadow-sm mb-4 flex justify-between items-center text-xs text-gray-600">
             <span>Usuario: <strong id="lblUsuario" class="text-indigo-600"></strong></span>
-            <button onclick="cerrarSesionMovil()" class="text-red-500 hover:underline">Cambiar de usuario</button>
+            <div class="space-x-2">
+                <button onclick="abrirModalConsulta()" class="text-indigo-600 font-semibold hover:underline">📊 Consultar</button>
+                <span class="text-gray-300">|</span>
+                <button onclick="cerrarSesionMovil()" class="text-red-500 hover:underline">Cambiar usuario</button>
+            </div>
         </div>
 
         <div class="w-full bg-white p-6 rounded-xl shadow-lg mb-6 relative">
@@ -115,7 +120,6 @@
                     <label for="actividadPasada" class="block text-xs font-semibold text-gray-700 uppercase mb-1">¿Qué actividad hiciste?</label>
                     <input type="text" id="actividadPasada" autocomplete="off" required placeholder="Escribe para buscar..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     
-                    <!-- Sugerencias específicas para el modal pasado -->
                     <div id="sugerenciasPasadas" class="absolute left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden z-50"></div>
                 </div>
 
@@ -126,7 +130,6 @@
 
             <div id="mensajePasado" class="text-xs text-center hidden py-1.5 mb-3 rounded-lg font-medium"></div>
 
-            <!-- Listado de actividades de la fecha seleccionada en el modal -->
             <div class="border-t border-gray-100 pt-3 flex-1 overflow-y-auto">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="font-bold text-gray-800 text-xs">Actividades en esta fecha</h3>
@@ -135,6 +138,50 @@
                 <div id="listaActividadesPasadas" class="space-y-2 max-h-40 overflow-y-auto pr-1">
                     <p class="text-xs text-gray-400 text-center py-2">Selecciona una fecha para ver registros.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONSULTA DE ACTIVIDADES (SEMANAL / MENSUAL) -->
+    <div id="modalConsulta" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="w-full max-w-lg bg-white p-6 rounded-xl shadow-xl relative max-h-[90vh] flex flex-col">
+            <button type="button" onclick="cerrarModalConsulta()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg font-bold">✕</button>
+            
+            <h2 class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Panel de Control</h2>
+            <h1 class="text-xl font-bold text-gray-800 mb-4">Consulta de Actividades</h1>
+
+            <!-- Filtros de Usuario y Tipo de Vista -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <div>
+                    <label for="selectUsuarioConsulta" class="block text-[10px] font-semibold text-gray-700 uppercase mb-1">Usuario</label>
+                    <select id="selectUsuarioConsulta" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-xs">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="selectVistaConsulta" class="block text-[10px] font-semibold text-gray-700 uppercase mb-1">Tipo de Vista</label>
+                    <select id="selectVistaConsulta" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-xs">
+                        <option value="semanal" selected>Semanal (Por defecto)</option>
+                        <option value="mensual">Mensual</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Controles de Navegación -->
+            <div class="flex justify-between items-center mb-4 bg-indigo-50 px-3 py-2 rounded-lg border border-indigo-100">
+                <button id="btnAnteriorConsulta" class="bg-white text-indigo-600 font-semibold px-2.5 py-1 rounded-md border border-indigo-200 hover:bg-indigo-600 hover:text-white transition text-xs">
+                    ← Anterior
+                </button>
+                <span id="lblRangoPeriodoConsulta" class="text-xs font-bold text-indigo-900 text-center">Cargando periodo...</span>
+                <button id="btnSiguienteConsulta" class="bg-white text-indigo-600 font-semibold px-2.5 py-1 rounded-md border border-indigo-200 hover:bg-indigo-600 hover:text-white transition text-xs">
+                    Siguiente →
+                </button>
+            </div>
+
+            <!-- Contenedor de Resultados Dinámicos -->
+            <div id="contenedorResultadosConsulta" class="space-y-3 flex-1 overflow-y-auto pr-1">
+                <p class="text-xs text-gray-400 text-center py-8">Selecciona un usuario para ver sus registros.</p>
             </div>
         </div>
     </div>
@@ -300,7 +347,7 @@
             const contador = document.getElementById('contador');
             const mensaje = document.getElementById('mensaje');
 
-            // --- LÓGICA PARA EL MODAL DE DÍAS ANTERIORES ---
+            // --- MODAL DÍAS ANTERIORES ---
             const modalPasado = document.getElementById('modalPasado');
             const inputFechaPasada = document.getElementById('fechaPasada');
             const inputActividadPasada = document.getElementById('actividadPasada');
@@ -325,10 +372,9 @@
             window.cerrarModalPasado = function() {
                 modalPasado.classList.add('hidden');
                 mensajePasado.classList.add('hidden');
-                cargarActividadesHoy(); // Refrescar por si se agregó algo de hoy desde el modal
+                cargarActividadesHoy();
             }
 
-            // Cada vez que cambie la fecha en el modal, cargamos los registros de ese día
             inputFechaPasada.addEventListener('change', (e) => {
                 cargarActividadesPasadas(e.target.value);
             });
@@ -521,7 +567,6 @@
                 }
             };
 
-            // Envío del registro pasado a Supabase (mantiene el modal abierto y actualiza la lista inferior)
             formPasado.onsubmit = async (e) => {
                 e.preventDefault();
                 const fechaElegida = inputFechaPasada.value;
@@ -564,8 +609,6 @@
                     inputActividadPasada.focus();
 
                     setTimeout(() => mensajePasado.classList.add('hidden'), 2000);
-
-                    // Recargar la lista de esa fecha dentro del modal al instante
                     cargarActividadesPasadas(fechaElegida);
 
                 } catch (err) {
@@ -579,6 +622,202 @@
 
             cargarActividadesHoy();
         }
+
+        // --- LÓGICA DEL MODAL DE CONSULTA (SEMANAL / MENSUAL) ---
+        const modalConsulta = document.getElementById('modalConsulta');
+        const selectUsuarioConsulta = document.getElementById('selectUsuarioConsulta');
+        const selectVistaConsulta = document.getElementById('selectVistaConsulta');
+        const lblRangoPeriodoConsulta = document.getElementById('lblRangoPeriodoConsulta');
+        const btnAnteriorConsulta = document.getElementById('btnAnteriorConsulta');
+        const btnSiguienteConsulta = document.getElementById('btnSiguienteConsulta');
+        const contenedorResultadosConsulta = document.getElementById('contenedorResultadosConsulta');
+
+        let fechaActualPivote = new Date();
+
+        window.abrirModalConsulta = async function() {
+            modalConsulta.classList.remove('hidden');
+            await cargarUsuariosEnConsulta();
+        }
+
+        window.cerrarModalConsulta = function() {
+            modalConsulta.classList.add('hidden');
+        }
+
+        async function cargarUsuariosEnConsulta() {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?select=nombre,email`, { headers });
+                const usuarios = await res.json();
+                
+                selectUsuarioConsulta.innerHTML = '<option value="">-- Selecciona --</option>';
+                usuarios.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.nombre;
+                    opt.textContent = `${u.nombre}`;
+                    selectUsuarioConsulta.appendChild(opt);
+                });
+
+                const usuarioActual = localStorage.getItem('usuario_actual');
+                if (usuarioActual) {
+                    selectUsuarioConsulta.value = usuarioActual;
+                } else if (usuarios.length > 0) {
+                    selectUsuarioConsulta.value = usuarios[0].nombre;
+                }
+                consultarDatosModal();
+            } catch (err) {
+                console.error("Error cargando usuarios para consulta:", err);
+            }
+        }
+
+        function obtenerRangoSemana(d) {
+            d = new Date(d);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            const lunes = new Date(d.setDate(diff));
+            const viernes = new Date(lunes);
+            viernes.setDate(lunes.getDate() + 4);
+            return { lunes, viernes };
+        }
+
+        function formatearISO(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        async function consultarDatosModal() {
+            const usuario = selectUsuarioConsulta.value;
+            const vista = selectVistaConsulta.value;
+
+            if (!usuario) {
+                contenedorResultadosConsulta.innerHTML = '<p class="text-xs text-gray-400 text-center py-8">Selecciona un usuario válido.</p>';
+                lblRangoPeriodoConsulta.textContent = 'Selecciona periodo';
+                return;
+            }
+
+            if (vista === 'semanal') {
+                const { lunes, viernes } = obtenerRangoSemana(fechaActualPivote);
+                const fechaInicio = formatearISO(lunes);
+                const fechaFin = formatearISO(viernes);
+
+                lblRangoPeriodoConsulta.textContent = `Del ${lunes.toLocaleDateString('es-ES')} al ${viernes.toLocaleDateString('es-ES')}`;
+
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/registro_diario?usuario=eq.${encodeURIComponent(usuario)}&fecha=gte.${fechaInicio}&fecha=lte.${fechaFin}&order=fecha.asc,hora.asc`, { headers });
+                    const data = await res.json();
+                    renderizarVistaSemanalModal(data, lunes);
+                } catch (err) {
+                    console.error(err);
+                }
+
+            } else {
+                const anio = fechaActualPivote.getFullYear();
+                const mes = fechaActualPivote.getMonth();
+                const nombreMes = fechaActualPivote.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+                lblRangoPeriodoConsulta.textContent = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+
+                const primerDia = formatearISO(new Date(anio, mes, 1));
+                const ultimoDia = formatearISO(new Date(anio, mes + 1, 0));
+
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/registro_diario?usuario=eq.${encodeURIComponent(usuario)}&fecha=gte.${primerDia}&fecha=lte.${ultimoDia}&order=fecha.asc,hora.asc`, { headers });
+                    const data = await res.json();
+                    renderizarVistaMensualModal(data);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        function renderizarVistaSemanalModal(registros, lunesBase) {
+            contenedorResultadosConsulta.innerHTML = '';
+            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+
+            diasSemana.forEach((nombreDia, index) => {
+                const diaActual = new Date(lunesBase);
+                diaActual.setDate(lunesBase.getDate() + index);
+                const fechaStr = formatearISO(diaActual);
+
+                const actsDelDia = registros.filter(r => r.fecha === fechaStr);
+
+                const divDia = document.createElement('div');
+                divDia.className = 'bg-gray-50 border border-gray-200 rounded-lg p-2.5';
+
+                let htmlActividades = actsDelDia.length > 0 
+                    ? actsDelDia.map(a => `<div class="flex justify-between items-center bg-white p-2 rounded border border-gray-100 text-xs mb-1">
+                        <span class="text-gray-700 font-medium">${a.nombre_actividad}</span>
+                        <span class="text-[10px] text-gray-400">${a.hora || ''}</span>
+                      </div>`).join('')
+                    : '<p class="text-[11px] text-gray-400 italic">Sin registros.</p>';
+
+                divDia.innerHTML = `
+                    <div class="flex justify-between items-center mb-1.5">
+                        <h3 class="font-bold text-gray-800 text-xs uppercase text-indigo-600">${nombreDia} <span class="text-gray-500 font-normal">(${diaActual.toLocaleDateString('es-ES')})</span></h3>
+                        <span class="text-[10px] bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">${actsDelDia.length} reg.</span>
+                    </div>
+                    <div class="space-y-1">${htmlActividades}</div>
+                `;
+                contenedorResultadosConsulta.appendChild(divDia);
+            });
+        }
+
+        function renderizarVistaMensualModal(registros) {
+            contenedorResultadosConsulta.innerHTML = '';
+
+            if (registros.length === 0) {
+                contenedorResultadosConsulta.innerHTML = '<p class="text-xs text-gray-400 text-center py-8">No hay actividades este mes.</p>';
+                return;
+            }
+
+            const agrupados = {};
+            registros.forEach(r => {
+                if (!agrupados[r.fecha]) agrupados[r.fecha] = [];
+                agrupados[r.fecha].push(r);
+            });
+
+            Object.keys(agrupados).sort().forEach(fecha => {
+                const acts = agrupados[fecha];
+                const divFecha = document.createElement('div');
+                divFecha.className = 'bg-gray-50 border border-gray-200 rounded-lg p-2.5';
+
+                const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                let htmlActs = acts.map(a => `<div class="flex justify-between items-center bg-white p-2 rounded border border-gray-100 text-xs mb-1">
+                    <span class="text-gray-700 font-medium">${a.nombre_actividad}</span>
+                    <span class="text-[10px] text-gray-400">${a.hora || ''}</span>
+                  </div>`).join('');
+
+                divFecha.innerHTML = `
+                    <div class="flex justify-between items-center mb-1.5">
+                        <h3 class="font-bold text-gray-800 text-xs capitalize text-indigo-600">${fechaFormateada}</h3>
+                        <span class="text-[10px] bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">${acts.length} reg.</span>
+                    </div>
+                    <div class="space-y-1">${htmlActs}</div>
+                `;
+                contenedorResultadosConsulta.appendChild(divFecha);
+            });
+        }
+
+        btnAnteriorConsulta.addEventListener('click', () => {
+            if (selectVistaConsulta.value === 'semanal') {
+                fechaActualPivote.setDate(fechaActualPivote.getDate() - 7);
+            } else {
+                fechaActualPivote.setMonth(fechaActualPivote.getMonth() - 1);
+            }
+            consultarDatosModal();
+        });
+
+        btnSiguienteConsulta.addEventListener('click', () => {
+            if (selectVistaConsulta.value === 'semanal') {
+                fechaActualPivote.setDate(fechaActualPivote.getDate() + 7);
+            } else {
+                fechaActualPivote.setMonth(fechaActualPivote.getMonth() + 1);
+            }
+            consultarDatosModal();
+        });
+
+        selectUsuarioConsulta.addEventListener('change', consultarDatosModal);
+        selectVistaConsulta.addEventListener('change', () => {
+            fechaActualPivote = new Date();
+            consultarDatosModal();
+        });
     </script>
 </body>
 </html>
